@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M-VITAL DRIVE | MCOACHING</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #042F2E; 
+            --bg-card: linear-gradient(135deg, #F9FAFB 0%, #E5E7EB 100%); 
+            --accent-gold: #B48A32;
+            --text-main: #111827; 
+            --text-sub: #4B5563;
+        }
+
+        body { margin: 0; padding: 0; background-color: var(--bg-dark); font-family: 'Noto Sans KR', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: var(--text-main); overflow-x: hidden; }
+        .hidden { display: none !important; }
+
+        .card {
+    max-width: 620px; width: 100%; background: var(--bg-card); padding: 50px 20px; border-radius: 0;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6); border: 1px solid rgba(180, 138, 50, 0.3); text-align: center; position: relative; margin: 0;
+    box-sizing: border-box; /* 👈 이 코드가 추가되어야 여백이 화면 밖으로 밀려나지 않습니다 */
+}
+
+        /* [오류해결 2: .input-field CSS 클래스 추가] */
+        .input-field {
+            width: 100%; padding: 18px; border-radius: 15px; border: 1px solid #D1D5DB; background: white; 
+            margin-bottom: 18px; box-sizing: border-box; font-size: 1.1rem; outline: none; transition: 0.3s;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .input-field:focus { border-color: var(--accent-gold); box-shadow: 0 0 0 3px rgba(180, 138, 50, 0.1); }
+
+        .vital-title { font-family: 'Playfair Display', serif; color: var(--accent-gold); font-size: 4.8rem; margin: 0; line-height: 1; letter-spacing: -1px; }
+        .vital-subtitle { font-family: 'Noto Serif KR', serif; font-size: 2.4rem; font-weight: 700; margin-top: 15px; margin-bottom: 40px; letter-spacing: -1px; }
+        .intro-top-title { font-family: 'Playfair Display', serif; color: var(--accent-gold); font-size: 2.2rem; margin-bottom: 10px; }
+
+        .btn-gold { width: 100%; padding: 22px; border-radius: 18px; background: var(--accent-gold); color: white; font-weight: 700; font-size: 1.3rem; border: none; cursor: pointer; transition: 0.3s; margin-top: 15px; box-shadow: 0 5px 15px rgba(180, 138, 50, 0.3); }
+        .btn-gold:hover { background: #967228; transform: translateY(-3px); }
+        .btn-main { width: 100%; padding: 20px; border-radius: 18px; background: #111827; color: #FFF; font-weight: 700; font-size: 1.2rem; border: none; cursor: pointer; transition: 0.3s; margin-top: 15px; }
+        .btn-outline { display: block; width: 100%; padding: 18px; border-radius: 15px; border: 1.5px solid var(--accent-gold); color: var(--accent-gold); text-decoration: none; font-weight: 700; margin-bottom: 12px; box-sizing: border-box; transition: 0.3s; text-align: center; font-size: 1.05rem; }
+
+        .slider-container { margin: 35px 0; text-align: left; border-bottom: 1px solid #DDD; padding-bottom: 30px; transition: background-color 0.5s; cursor: pointer; }
+        .slider-header { font-weight: 700; font-size: 1.15rem; margin-bottom: 18px; line-height: 1.6; color: #042F2E; word-break: keep-all; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 10px; cursor: pointer; background: #D1D5DB; border-radius: 5px; }
+        input[type=range].untouched::-webkit-slider-thumb { background: #9CA3AF; border: 3px solid #E5E7EB; }
+        input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radius: 50%; background: var(--accent-gold); cursor: pointer; -webkit-appearance: none; margin-top: -11px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: 0.3s; }
+        
+        .slider-labels-detail { display: flex; justify-content: space-between; margin-top: 12px; font-size: 0.78rem; color: #6B7280; font-weight: 700; text-align: center; }
+        .slider-labels-detail span { width: 20%; }
+
+        .res-headline { font-family: 'Noto Serif KR', serif; font-size: 1.9rem; line-height: 1.3; color: var(--accent-gold); margin-bottom: 25px; word-break: keep-all; font-weight: 700; text-align: left; }
+        .persona-badge { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #042F2E; margin-bottom: 8px; font-weight: 700; text-align: left; }
+        .persona-desc { font-family: 'Noto Serif KR', serif; font-size: 1.7rem; font-weight: 700; color: #111827; margin-bottom: 25px; text-align: left; }
+        
+        .analysis-box { background: white; padding: 25px; border-radius: 20px; margin-bottom: 15px; text-align: left; border-left: 5px solid var(--accent-gold); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .analysis-label { font-weight: 800; color: var(--accent-gold); font-size: 1rem; margin-bottom: 10px; display: block; }
+        .analysis-content { font-size: 1.05rem; line-height: 1.7; color: #374151; word-break: keep-all; }
+
+        .sync-index-container { background: white; padding: 25px; border-radius: 20px; margin: 10px 0 25px 0; border: 2px solid var(--accent-gold); text-align: left; }
+        .sync-label { font-size: 1.1rem; color: var(--text-main); font-weight: 700; margin-bottom: 10px; display: block; }
+        .sync-value { font-size: 3.2rem; color: var(--accent-gold); font-weight: 900; }
+        .alignment-desc { font-family: 'Noto Serif KR', serif; font-size: 1.15rem; line-height: 1.7; color: #374151; margin-top: 15px; text-align: left; border-top: 1px solid #EEE; padding-top: 15px; }
+
+        .mission-card { background: rgba(255, 255, 255, 0.8); padding: 20px 25px; border-radius: 20px; margin-top: 25px; border-left: 6px solid var(--accent-gold); text-align: left; }
+        .expert-note { background: #FFF; padding: 35px; border-radius: 25px; margin-top: 35px; border: 2.5px solid var(--accent-gold); text-align: left; font-family: 'Noto Serif KR', serif; line-height: 1.9; font-size: 1.25rem; color: #1F2937; }
+        
+        .coach-question-box { background: #F3F4F6; padding: 30px; border-radius: 25px; margin-top: 20px; border: 1.5px dashed var(--accent-gold); text-align: left; }
+        .coach-question-label { color: var(--accent-gold); font-weight: 800; font-size: 1.1rem; margin-bottom: 15px; display: block; }
+        .coach-question-content { font-family: 'Noto Serif KR', serif; font-size: 1.2rem; line-height: 1.8; color: #042F2E; font-weight: 700; }
+
+        .synergy-card { background: #042F2E; color: white; padding: 35px; border-radius: 25px; margin-top: 35px; text-align: left; }
+        .synergy-title { 
+    color: #FFFFFF; /* 흰색으로 변경하여 가독성 극대화 */
+    font-weight: 900; 
+    font-size: 1.1rem; /* 크기 살짝 키움 */
+    margin-bottom: 12px; 
+    text-shadow: 0 0 8px rgba(180, 138, 50, 0.6); /* 골드빛 광택 효과 추가 */
+}
+        .synergy-text { font-family: 'Noto Serif KR', serif; font-size: 1.1rem; line-height: 1.8; color: #E5E7EB; }
+
+        .basis-text { font-size: 0.85rem; color: #6B7280; font-family: 'Noto Sans KR', sans-serif; margin-top: 15px; line-height: 1.6; border-top: 1px dashed #D1D5DB; padding-top: 10px; text-align: left; background: #F3F4F6; padding: 15px; border-radius: 12px; }
+
+        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--accent-gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div id="step-auth" class="card">
+            <h1 class="vital-title">Vital Drive</h1>
+            <p class="vital-subtitle">강점 엔진 진단</p>
+            <label style="display:block; text-align:center; font-weight:700; color:var(--text-sub); margin-bottom:15px;">초대코드를 입력해 주세요</label>
+            <input type="password" id="entry-code" class="input-field" style="text-align: center;" placeholder="CODE 입력" onkeyup="if(window.event.keyCode==13){checkAuth()}">
+            <button class="btn-gold" onclick="checkAuth()">START</button>
+            <div class="footer-global" style="margin-top: 60px; padding-top: 30px; border-top: 1px solid rgba(0,0,0,0.1);">
+                <p class="copyright">© 2026 MCOACHING All rights reserved</p>
+            </div>
+        </div>
+
+        <div id="step-intro" class="card hidden">
+            <h2 class="intro-top-title">Vital Drive</h2>
+            <img src="main_hero.png" alt="M-VITAL Hero" class="hero-img" style="width: 100%; border-radius: 25px; margin: 15px 0 25px 0; border: 1px solid #D1D5DB; display: block;">
+            <div style="text-align: center; border-top: 1px solid #DDD; padding-top: 25px;">
+                <p style="line-height: 1.9; font-size: 1.1rem; word-break: keep-all; font-family: 'Noto Serif KR', serif; color: #374151;">
+                    본 도구는 긍정심리학자 <strong>Peterson & Seligman(2004)</strong>과 <strong>McGrath(2019)</strong>의 강점 척도를 기반으로 명코칭이 10년의 임상 데이터와 뇌과학적 원리를 결합해 독자적으로 재설계한 <strong>'초개인화 강점 엔진 진단 시스템'</strong>입니다
+                </p>
+                <p style="line-height: 1.9; font-size: 1.1rem; word-break: keep-all; font-family: 'Noto Serif KR', serif; color: #042F2E; margin-top: 15px;">
+                    당신의 진실된 반응이 데이터로 쌓이는 순간 당신의 삶을 이끄는 고유한 <strong>'강점 엔진'의 실체</strong>가 선명하게 나타납니다
+                </p>
+            </div>
+            <button class="btn-main" onclick="nextStep('step-profile')">ENTER</button>
+        </div>
+
+        <div id="step-profile" class="card hidden">
+            <h3 style="color: var(--accent-gold); font-size: 1.8rem; font-family:'Noto Serif KR', serif;">강점 엔진 설계</h3>
+            <div style="text-align: left; margin: 25px 0;">
+                <label style="font-weight:700; color:var(--text-sub); font-size:0.9rem;">내가 현재 발현하고 싶은 에너지 (#해시태그)</label>
+                <input type="text" id="user-energy" class="input-field" placeholder="#몰입 #회복 #여유 #자존감 #성취감 #안정 #성장">
+                
+                <label style="font-weight:700; color:var(--text-sub); font-size:0.9rem;">나이 / 성별</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="user-age" class="input-field" placeholder="나이">
+                    <select id="user-gender" class="input-field">
+                        <option value="" disabled selected>성별 선택 (필수)</option>
+                        <option value="남">남성</option>
+                        <option value="여">여성</option>
+                    </select>
+                </div>
+                <label style="font-weight:700; color:var(--text-sub); font-size:0.9rem;">현재 전공 또는 직무</label>
+                <input type="text" id="user-major" class="input-field" placeholder="예: 경영, 디자인, 공학, 컴퓨터, 인문사회 등">
+            </div>
+            <div style="text-align: left; padding: 15px; border: 1.5px dashed #B48A32; border-radius: 15px; font-size: 0.95rem; margin-bottom: 25px;">
+                <input type="checkbox" id="user-agree"> 본 데이터가 연구 목적으로만 순수하게 활용되는 것에 동의합니다
+            </div>
+            <button class="btn-main" onclick="startTest()">진단 시작하기</button>
+        </div>
+
+        <div id="step-test" class="card hidden">
+            <h3 style="margin-bottom:30px; color:var(--accent-gold); font-family:'Noto Serif KR', serif;">강점 동력 측정 (VIA-REACH 27)</h3>
+            <div id="test-content" style="max-height: 55vh; overflow-y: auto; padding-right: 15px; text-align:left;"></div>
+            <button class="btn-main" style="margin-top:30px;" onclick="validateAndCalculate()">결과 분석하기</button>
+        </div>
+
+        <div id="step-loading" class="card hidden">
+            <div class="spinner"></div>
+            <h3 id="load-msg" style="color:var(--accent-gold); font-family:'Noto Serif KR', serif;">데이터 매핑 중</h3>
+            <p style="font-size:0.9rem; color:var(--text-sub);"> 알고리즘이 당신의 뇌과학 데이터를 분석하고 있습니다</p>
+        </div>
+
+        <div id="step-result" class="card hidden">
+            <p id="res-date" style="font-size:0.8rem; color:#9CA3AF; text-align:right; margin-bottom:10px;"></p>
+            <p class="res-headline">나의 핵심 동력</p>
+            <div class="persona-badge" id="res-persona-title"></div>
+            <div class="persona-desc" id="res-persona-sub" style="font-family: 'Noto Serif KR', serif; font-size: 1.5rem; color: var(--accent-gold); margin-bottom: 25px; font-weight: 700;"></div>
+            
+            <div id="res-synergy-area"></div>
+
+            <div class="sync-index-container">
+                <span class="sync-label">엔진 정렬 지수(에너지 동기화율)</span>
+                <div id="res-sync-value" class="sync-value">0%</div>
+                <div id="res-alignment-desc" class="alignment-desc" style="font-weight:700; color:#042F2E; margin-bottom:10px; border-top:none; padding-top:0;"></div>
+                <div id="res-alignment-detail" style="font-size:0.95rem; line-height:1.6; color:#4B5563; text-align:left;"></div>
+
+                <div class="basis-text" style="background: rgba(4,47,46,0.1); color: #042F2E; border-top: none; margin-top:15px;">
+    <strong>📊 분석 근거</strong> 
+    보상이 적으면 뇌가 의욕을 끄는 <strong>'보상 예측 오류'</strong>와 강점 에너지가 헛도는 <strong>'강점 과용'</strong> 현상을 분석한 결과입니다. 지수가 <strong>80% 이상</strong>일 때 당신의 강점 엔진은 가장 효율적으로 작동합니다.
+</div>
+            </div>
+
+            <div id="res-status-neuro-area"></div>
+
+            <p style="font-size: 0.9rem; color: #6B7280; margin-bottom: 5px; text-align:left; margin-top:30px;">내가 현재 발현하고 싶은 에너지</p>
+<div id="res-tag" style="display:inline-block; padding: 10px 25px; background: var(--accent-gold); color: white; border-radius: 10px; font-weight: 800; font-size: 1.2rem; margin-bottom: 30px; float:left;"></div>
+
+<div id="res-tag-desc" style="clear:both; padding-top:10px; font-size:1.05rem; color:#4B5563; text-align:left; line-height:1.7; word-break:keep-all; font-family:'Noto Serif KR', serif; margin-bottom:20px;"></div>
+<div style="clear:both;"></div>
+<div style="text-align:left; background:#E5E7EB; padding:32px; border-radius:25px; margin-bottom:25px; font-size:1.05rem; line-height:1.8; margin-top:20px;">
+    <strong style="color:#042F2E; font-size:1.0rem;">🧠 당신의 핵심 강점에 대한 뇌과학적 통찰 (Neuroscience Insight)</strong><br>
+    <div id="res-neuro" style="margin-top:10px;"></div>
+</div> <div style="width: 75%; margin: 40px auto;">
+    <canvas id="vitalChart"></canvas>
+</div>
+            <div id="mission-area"></div>
+            <div id="basis-mission" class="basis-text" style="margin-top:40px; margin-bottom:40px;">
+                <strong>🏃 분석 근거</strong> 행동 경제학의 <strong>'작은 승리'</strong> 원리에 기반하여 <strong>당신의 1순위 강점을 </strong> REACH 단계와 매칭하여 뇌의 저항을 최소화하는 전략을 제시합니다.
+            </div>
+
+            <div id="mentoring-area" class="expert-note"></div>
+            <div id="coach-question-area"></div>
+
+            <div class="basis-text" style="margin-top:20px; margin-bottom:40px;">
+                <strong>💡 분석 근거</strong> 수만 명의 임상 데이터에서 추출한 <strong>'에너지 조율 알고리즘'</strong>을 통해 현재 상태에서 <strong>활력(Flourishing)</strong> 상태로 가장 빠르게 진입할 수 있는 행동 경로를 제안합니다
+            </div>
+
+            <button id="send-btn" class="btn-gold" onclick="shareData()">데이터 공유 및 결과 저장하기</button>
+            <button class="btn-outline" 
+        style="margin-top: 20px;" 
+        onclick="window.open('https://pf.kakao.com/_Lhjxis', '_blank')">
+    💬 명코치와의 상담 신청하기
+</button>
+            
+            <div class="footer-global" style="margin-top: 60px; padding-top: 30px; border-top: 1px solid rgba(0,0,0,0.1);">
+                <img src="logo.png" alt="MCOACHING" style="max-width:160px; margin-bottom:15px;">
+                <p class="copyright">© 2026 MCOACHING All rights reserved</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ✅ 새 배포 URL로 업데이트되었습니다.
+const WEB_HOOK_URL = "https://script.google.com/macros/s/AKfycbwRep0lRZqAyMSnJ1PwTLVLSvM6E-ZYthEspv9q8874LslacB764E9d504tcE4x4hc1/exec";
+         let vitalChartInstance = null;
+        
+        const questions = [
+            { id: 1, axis: "Vision", text: "나는 새로운 방식으로 일을 처리하는 독창적인 아이디어가 많다 (창의성)" },
+            { id: 2, axis: "Vision", text: "나는 새로운 주제에 관심이 많고 질문하는 것을 즐긴다 (호기심)" },
+            { id: 3, axis: "Vision", text: "나는 결정을 내리기 전 여러 측면에서 객관적으로 생각한다 (판단력)" },
+            { id: 4, axis: "Vision", text: "나는 새로운 기술이나 지식을 배우는 과정 자체에서 즐거움을 느낀다 (학구열)" },
+            { id: 5, axis: "Vision", text: "나는 사물의 본질을 파악하고 타인에게 지혜로운 조언을 건넨다 (통찰력)" },
+            { id: 6, axis: "Execution", text: "나는 위험이 있더라도 옳다고 믿는 일을 위해 용기를 낸다 (용기)" },
+            { id: 7, axis: "Execution", text: "나는 한 번 시작한 일은 결과가 나올 때까지 끈기 있게 밀어붙인다 (끈기)" },
+            { id: 8, axis: "Coordination", text: "나는 내 생각과 감정을 진실하게 표현하며 당당하게 행동한다 (정직)" },
+            { id: 9, axis: "Execution", text: "나는 매사에 온 마음을 다해 열정적으로 에너지를 쏟는다 (열정)" },
+            { id: 10, axis: "Connection", text: "나는 주변 사람들과 친밀한 관계를 맺고 서로 돌보는 것을 중요하게 여긴다 (사랑)" },
+            { id: 11, axis: "Connection", text: "나는 다른 사람들의 필요를 잘 알아차리고 기꺼이 도움을 준다 (친절)" },
+            { id: 12, axis: "Connection", text: "나는 타인의 감정에 깊이 공감하고 소통하는 능력이 높다 (감성지능)" },
+            { id: 13, axis: "Connection", text: "나는 팀의 화합을 이끌어내고 목표를 향해 협력한다 (팀워크)" },
+            { id: 14, axis: "Harmony", text: "나는 모든 사람을 편견 없이 공평하게 대우하려 노력한다 (공정성)" },
+            { id: 15, axis: "Connection", text: "나는 집단의 목표를 위해 사람들을 독려하고 이끄는 능력이 있다 (리더십)" },
+            { id: 16, axis: "Harmony", text: "나는 잘못을 저지른 사람을 너그럽게 용서하고 다시 기회를 준다 (용서)" },
+            { id: 17, axis: "Coordination", text: "나는 내 성취를 뽐내기보다 겸손한 자세로 경청한다 (겸손)" },
+            { id: 18, axis: "Coordination", text: "나는 중요한 결정을 내리기 전에 충분히 생각하고 신중히 행동한다 (신중함)" },
+            { id: 19, axis: "Coordination", text: "나는 내 감정이 폭발하지 않도록 평소에 스스로를 잘 다스린다 (자기조절)" },
+            { id: 20, axis: "Vision", text: "나는 자연이나 예술 일상 속의 아름다움을 발견하고 감동한다 (경외)" },
+            { id: 21, axis: "Harmony", text: "나는 일상의 작은 일에서도 감사할 거리를 찾아 표현한다 (감사)" },
+            { id: 22, axis: "Harmony", text: "나는 불확실한 상황에서도 결국 잘 될 것이라는 희망을 품는다 (희망)" },
+            { id: 23, axis: "Connection", text: "나는 유머를 통해 주변의 긴장을 풀어주고 긍정적 분위기를 만든다 (유머)" },
+            { id: 24, axis: "Harmony", text: "나는 삶의 높은 목적을 신뢰하며 영적인 가치를 중요하게 여긴다 (영성)" },
+            { id: 25, axis: "Execution", text: "나는 결심한 즉시 행동으로 옮기는 추진력이 강하다 (추진력)" },
+            { id: 26, axis: "Execution", text: "나는 목표 달성을 위해 끝까지 에너지를 유지할 수 있다 (몰입지속력)" },
+            { id: 27, axis: "Execution", text: "나는 장애물이 나타나도 멈추지 않고 대안을 찾아 실행한다 (해결실행력)" }
+        ];
+
+        const clusterPersonas = {
+            Vision: { title: "Smart Strategist", sub: "복잡한 세상을 한눈에 정리하는 인사이트 내비게이터", neuro: "전전두엽이 미래의 가능성을 시뮬레이션할 때 가장 짜릿한 보상을 느깁니다. 남들이 보지 못하는 연결고리를 찾아 '될 일'로 설계할 때 당신의 뇌는 풀가동됩니다", reach: "R - Recognize (멈추고 알아차리기)", mission: "뇌의 RAM(메모리) 부하를 줄이기 위해 지금 떠오르는 모든 잡념을 메모장에 쏟아내고, 내 힘으로 바꿀 수 없는 외부 요인들로부터는 즉시 '로그아웃' 하세요", lesson: "머릿속을 어지럽히는 생각 5가지를 적은 뒤, '지금 당장 통제할 수 없는 것' 4가지를 과감히 삭제하세요. 남겨진 단 하나의 본질에 집중할 때 비로소 당신만의 명료한 답이 보입니다" },
+            Execution: { title: "Power Charger", sub: "생각을 곧바로 현실로 만드는 압도적 실행 메이커", neuro: "도파민 시스템이 '돌파'와 '성취'에 최적화되어 있습니다. 장애물을 넘어설 때 뇌는 쾌락을 느끼며, 생각과 동시에 몸을 움직일 때 최고의 컨디션을 유지합니다", reach: "C - Change (속도보다 기어 바꾸기)", mission: "뇌의 시동 전압을 높이기 위해 5분간 물리적인 혈류량을 높이는 가벼운 스트레칭을 하고, '딱 2분만 한다'는 룰로 엔진에 물리적인 첫 발을 떼세요", lesson: "아침에 고민 대신 몸을 먼저 5분만 먼저 움직여보세요. 당신의 뇌는 '준비'가 완벽할 때보다 '이미 시작했을 때' 최적의 해결책을 찾아냅니다" },
+            Connection: { title: "Heart Connector", sub: "존재만으로 주변의 온도를 높이는 다정한 유대 전문가", neuro: "옥시토신과 거울 뉴런이 매우 발달해 있습니다. 타인과 감정의 주파수를 맞출 때 뇌가 가장 안정적이며, 협력을 통해 시너지를 낼 때 창의적인 에너지가 샘솟습니다", reach: "E - Empathize (나에게 먼저 공감하기)", mission: "타인에게 에너지를 전송하기 전 나의 '멘탈 배터리' 잔량을 먼저 확인하고, 나를 위한 짧은 확언 한 문장을 가장 먼저 기록하며 내부 연료를 채워주세요", lesson: "오늘 하루 고마웠던 사람에게 짧은 메시지를 전하거나, 나 자신에게 진심 어린 칭찬 한마디를 건네보세요. 유대감은 당신의 엔진을 돌리는 가장 강력한 연료입니다" },
+            Harmony: { title: "Balance Master", sub: "폭풍 속에서도 중심을 잡는 내면의 멘탈 가드", neuro: "세로토닌 시스템이 평형을 이루어 정서적 고요함을 유지할 때 가장 강력한 효율을 냅니다. 자극에 휩쓸리지 않고 상황을 조망하는 능력이 탁월합니다", reach: "H - Heal (더 깊게 회복하기)", mission: "외부의 자극적 노이즈를 차단하기 위해 15분간 스마트폰을 가방 깊숙이 넣는 '완전한 오프라인'을 실천하며 오직 나의 숨소리에만 집중하는 쉼표를 찍으세요", lesson: "오늘 가장 평화로웠던 3분의 기억을 수집하세요. 주변이 소름으로 가득할 때 그 장면을 꺼내 보는 습관이 당신의 엔진을 보호하는 가장 좋은 방법입니다" },
+            Coordination: { title: "Self Curator", sub: "에너지의 낭비를 막는 스마트 라이프 조율가", neuro: "전전두엽의 실행 제어 기능이 극대화되어 있습니다. 한정된 에너지를 어디에 쓸지 초정밀하게 계산하여 최단 경로를 찾아내는 '최적화'의 달인입니다", reach: "A - Accept (불완전함 수용하기)", mission: "불필요한 에너지 누수를 막기 위해 오늘 절대 하지 않을 일(Not-to-Do) 3가지를 정하고, 나의 업무 공간에서 시선을 분산시키는 물건 하나를 즉시 치워내세요", lesson: "내일의 할 일 목록에서 '남에게 보이기 위해 억지로 넣은 일' 하나를 삭제해 보세요. '빼기'를 통해 엔진의 부하를 줄여주는 것이 진정한 조율의 시작입니다" }
+        };
+
+        const signatureMatrix = {
+            "Execution+Vision": "미래를 현실로 바꾸는 전략적 돌격대장", "Vision+Execution": "현실 가능한 미래를 설계하는 비전 메이커", "Coordination+Vision": "복잡함을 단순함으로 정제하는 정교한 설계자", "Vision+Coordination": "직관을 정교한 시스템으로 다듬는 기획자", "Connection+Execution": "사람의 마음을 움직여 성과를 내는 뜨거운 리더", "Execution+Connection": "압도적인 추진력으로 팀의 결속을 이끄는 지휘관", "Execution+Harmony": "원칙 위에서 성취를 일구는 단단한 개척자", "Harmony+Execution": "조화로운 과정 속에 확실한 성과를 만드는 실행가", "Connection+Harmony": "존재 자체로 주변에 안도감을 주는 다정한 북극성", "Harmony+Connection": "평화로운 관계 속에서 모두의 성장을 돕는 중재자", "Connection+Vision": "영감을 나누며 함께 성장하는 선한 영향력자", "Vision+Connection": "함께 꿈꿀 수 있는 미래를 제시하는 스토리텔러", "Coordination+Harmony": "깊은 평온 위에서 일상을 큐레이팅하는 예술가", "Harmony+Coordination": "내면의 질서 속에서 최상의 평온을 찾는 명상가", "Coordination+Execution": "치밀한 계획으로 목표를 달성하는 전략가", "Execution+Coordination": "폭발적인 에너지를 정교하게 통제하는 엔진 마스터", "Harmony+Vision": "이상적인 미래를 조화롭게 그려내는 몽상가", "Vision+Harmony": "세상의 본질과 조화를 통찰하는 지혜로운 철학자", "Connection+Coordination": "미세한 신호에 응답하는 섬세한 커뮤니케이터", "Coordination+Connection": "질서 있는 배려를 통해 신뢰를 구축하는 서포터"
+        };
+
+        const synergyDetails = {         
+    "Execution+Vision (실행+비전)": "꿈꾸던 미래를 내 손으로 직접 일궈낼 때 가장 큰 행복을 느끼시는군요! 명확한 지도와 강력한 엔진을 모두 가졌기에, 당신의 걸음은 망설임이 없고 성취의 기쁨은 누구보다 뜨겁습니다.",
+    "Vision+Execution (비전+실행)": "머릿속 상상을 현실로 짠! 하고 나타나게 만드는 마법 같은 능력이 있으시네요. 남들이 보지 못하는 미래를 미리 보고 그것을 하나하나 실천해가는 당신의 모습은 주변에 큰 영감을 줍니다.",
+    "Coordination+Vision (조율+비전)": "복잡하고 어지러운 상황 속에서도 본질을 꿰뚫어 보며 마음의 질서를 찾아내시는군요. 당신이 설계한 명쾌한 길은 본인뿐만 아니라 함께하는 사람들에게도 든든한 안심을 선물합니다.",
+    "Vision+Coordination (비전+조율)": "당신은 어려운 이야기도 누구나 이해할 수 있는 따뜻한 가이드로 바꿔주는 능력이 탁월하시네요. 정교하게 다듬어진 당신의 생각 덕분에 세상이 한층 더 명료하고 살기 좋게 느껴집니다.",
+    "Connection+Execution (연결+실행)": "사람의 마음을 움직여 함께 목표를 향해 나아가는 따뜻한 리더십을 가지셨군요! 당신의 진심 어린 에너지는 동료들의 잠재력을 깨우고, 혼자가 아닌 '우리'의 성공을 만들어내는 힘이 됩니다.",
+    "Execution+Connection (실행+연결)": "열정적으로 달리면서도 곁에 있는 사람들의 손을 절대 놓지 않는 다정한 지휘관이시네요. 당신과 함께라면 어떤 험난한 목표라도 즐거운 축제처럼 완수해낼 수 있을 것만 같은 확신이 듭니다.",
+    "Execution+Harmony (실행+조화)": "남들의 속도에 휘둘리지 않고 나만의 소중한 원칙을 지키며 묵묵히 나아가는 모습이 참 아름답습니다. 내면의 평온을 유지하며 일궈내는 당신의 성취는 그 깊이와 울림이 남다릅니다.",
+    "Harmony+Execution (조화+실행)": "주변과 부드럽게 어우러지면서도 실질적인 결과물을 만들어내는 외유내강의 실력자이시군요. 마찰 없는 조화로움 속에서 확실한 결실을 보는 당신의 방식은 모두에게 평안함을 줍니다.",
+    "Connection+Harmony (연결+조화)": "존재만으로도 주변의 온도를 높여주는 참 따뜻한 분이시네요. 타인의 아픔에 깊이 공감하고 평온한 에너지를 나눠주는 당신은 지친 이들에게 쉼표가 되어주는 소중한 정서적 지주입니다.",
+    "Harmony+Connection (조화+연결)": "사람들이 안심하고 마음껏 꿈꿀 수 있도록 따뜻하고 안전한 토양을 만들어주시는군요. 갈등을 보듬고 공감의 채널을 여는 당신 덕분에 주변 사람들은 실수해도 괜찮다는 위로를 얻습니다.",
+    "Connection+Vision (연결+비전)": "타인의 숨겨진 가능성을 발견하고 더 멋진 미래와 연결해주는 당신은 최고의 성장 파트너입니다. 당신을 만난 사람들은 잊고 있던 꿈을 다시 찾게 되고, 더 나은 삶을 향한 용기를 얻게 됩니다.",
+    "Vision+Connection (비전+연결)": "함께 꿈꿀 수 있는 미래를 들려주는 당신의 이야기는 사람들의 마음을 설레게 하는 힘이 있습니다. 당신이 제시하는 따뜻한 비전은 많은 이들을 한곳으로 모으는 다정한 중력이 됩니다.",
+    "Coordination+Harmony (조율+조화)": "주변을 깔끔하게 정리해 에너지를 아끼는 분이군요! 불필요한 것들을 걷어내고 중요한 일에만 쏙 집중하기 때문에, 마음의 평화와 성공을 모두 놓치지 않는 지혜로운 분입니다.",
+    "Harmony+Coordination (조화+조율)": "어지러운 세상 속에서도 나만의 평온한 성을 쌓고 내면의 질서를 지켜가는 모습이 참 고귀합니다. 규칙적인 루틴을 통해 삶의 밀도를 높여가는 당신은 평온함 속에서 진정한 고수임을 증명합니다.",
+    "Coordination+Execution (조율+실행)": "치밀한 준비와 정성으로 실패 없는 성공을 일궈내어 주변에 큰 신뢰를 주시는군요. 당신의 차분하고 계획적인 실행력은 불안한 세상 속에서 모두가 믿고 기댈 수 있는 든든한 이정표가 됩니다.",
+    "Execution+Coordination (실행+조율)": "엄청난 에너지를 쏟으면서도 작은 디테일 하나 놓치지 않는 당신의 섬세함에 감탄하게 됩니다. 자신을 철저히 관리하면서도 효율적으로 일을 처리하는 당신은 많은 이들이 닮고 싶어 하는 인생의 모델입니다.",
+    "Harmony+Vision (조화+비전)": "현실의 날카로움에 부딪히기보다 더 아름답고 이상적인 미래를 고요하게 그려내는 몽상가이시군요. 세상을 더 부드럽고 가치 있게 바꾸고 싶어 하는 당신의 진심이 창의적인 통찰로 빛나고 있습니다.",
+    "Vision+Harmony (비전+조화)": "세상의 본질을 꿰뚫어 보면서도 전체의 균형을 잊지 않는 지혜로운 철학자 같은 분입니다. 소란스러운 세상의 중심을 잡아주는 당신의 고요한 안정감은 본질적인 가치를 찾는 이들에게 큰 빛이 됩니다.",
+    "Connection+Coordination (연결+조율)": "상대의 미세한 감정 변화까지 세심하게 살피며 최적의 소통을 이끌어내시는군요. 당신의 배려 깊은 대화 방식은 꼬인 관계를 풀고 질서 있는 신뢰를 구축하는 마법 같은 힘을 발휘합니다.",
+    "Coordination+Connection (조율+연결)": "보이지 않는 곳에서 체계적으로 관계의 고리를 챙기며 팀의 결속력을 높여주시는 든든한 서포터이시네요. 당신의 정성 어린 조율 덕분에 공동체는 더 단단해지고 깊은 신뢰를 쌓아갑니다."
+};
+
+        const axisMapping = { "몰입": "Execution", "회복": "Harmony", "여유": "Harmony", "자존감": "Connection", "성취감": "Execution", "안정": "Coordination", "성장": "Vision" };
+        const majorResonance = { "경영": ["Execution", "Connection"], "디자인": ["Vision", "Harmony"], "공학": ["Execution", "Coordination"], "컴퓨터": ["Vision", "Coordination"], "인문사회": ["Connection", "Harmony"] };
+
+        function checkAuth() { const code = document.getElementById('entry-code').value; if(code === "6060") nextStep('step-intro'); else alert("초대코드가 일치하지 않습니다"); }
+        function nextStep(id) { document.querySelectorAll('.card').forEach(c => c.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); window.scrollTo(0,0); }
+        
+        // [수정 완료: 스타트 버튼 활성화 로직]
+        function startTest() { 
+            const energy = document.getElementById('user-energy').value.trim(); 
+            const gender = document.getElementById('user-gender').value; 
+            const age = document.getElementById('user-age').value.trim(); 
+            const agree = document.getElementById('user-agree').checked;
+
+            if(!energy || !age || gender === "" || !agree) {
+                return alert("모든 항목(해시태그, 나이, 성별)을 입력하고 동의 체크를 완료해 주세요."); 
+            }
+            nextStep('step-test'); 
+            renderSliders(); 
+        }
+
+        function markTouched(el) { const slider = el.tagName === 'INPUT' ? el : el.querySelector('input[type=range]'); slider.classList.remove('untouched'); slider.dataset.touched = "true"; }
+
+        function renderSliders() {
+            const container = document.getElementById('test-content'); let h = "";
+            questions.forEach((q, i) => {
+                h += `<div class="slider-container" id="q-box-${q.id}" onclick="markTouched(this)">
+                    <div class="slider-header">${i+1}. ${q.text}</div>
+                    <div class="slider-box"><input type="range" name="q${q.id}" class="untouched" min="1" max="5" step="1" value="3" data-touched="false" oninput="markTouched(this)" onmousedown="markTouched(this)" ontouchstart="markTouched(this)">
+                        <div class="slider-labels-detail"><span>전혀 아니다</span><span>그렇지 않다</span><span>보통이다</span><span>그렇다</span><span>매우 그렇다</span></div>
+                    </div></div>`;
+            });
+            container.innerHTML = h;
+        }
+
+        function validateAndCalculate() {
+            const untouched = document.querySelectorAll('input[type=range][data-touched="false"]');
+            if(untouched.length > 0) { alert("모든 문항에 응답해 주세요."); const firstUntouched = untouched[0].closest('.slider-container'); if (firstUntouched) firstUntouched.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+            nextStep('step-loading'); setTimeout(calculateResult, 2000);
+        }
+
+        function calculateResult() {
+            const axes = ["Vision", "Execution", "Connection", "Harmony", "Coordination"];
+            const counts = { Vision: 6, Execution: 6, Connection: 6, Harmony: 5, Coordination: 4 };
+            const sums = { Vision: 0, Execution: 0, Connection: 0, Harmony: 0, Coordination: 0 };
+            questions.forEach(q => { let v = parseInt(document.querySelector(`input[name="q${q.id}"]`).value); sums[q.axis] += v; });
+            const normalized = {}; axes.forEach(key => { normalized[key] = parseFloat((sums[key] / counts[key]).toFixed(2)); });
+            const rawTag = document.getElementById('user-energy').value; const cleanTag = rawTag.replace(/#/g, ''); const userMajor = document.getElementById('user-major').value;
+            const sorted = Object.entries(normalized).sort((a,b) => { if(b[1] !== a[1]) return b[1] - a[1]; const aPref = Object.keys(axisMapping).some(tag => cleanTag.includes(tag) && axisMapping[tag] === a[0]); const bPref = Object.keys(axisMapping).some(tag => cleanTag.includes(tag) && axisMapping[tag] === b[0]); return bPref - aPref; });
+            const topScore = sorted[0][1]; const topAxis = sorted[0][0];
+            const baseIntensity = (topScore / 5) * 60; const isMatched = Object.keys(axisMapping).some(tag => cleanTag.includes(tag) && axisMapping[tag] === topAxis); const intentionBonus = isMatched ? 20 : 0;
+            let majorBonus = 0; for (const [key, axisList] of Object.entries(majorResonance)) { if (userMajor.includes(key) && axisList.includes(topAxis)) { majorBonus = 20; break; } }
+            let syncIndex = Math.min(Math.round(baseIntensity + intentionBonus + majorBonus), 100);
+            window.finalResults = { age: document.getElementById('user-age').value, gender: document.getElementById('user-gender').value, major: userMajor, energy: rawTag, scores: axes.map(axis => normalized[axis]), syncIndex };
+            showResult(topAxis, sorted[1][0], syncIndex);
+        }
+
+     function showResult(t1, t2, sync) {
+    nextStep('step-result');
+
+    // 1. 영어 축 명칭을 한글로 바꾸는 사전 (매칭 및 화면 표시용)
+    const axisKo = { 
+        "Vision": "비전", 
+        "Execution": "실행", 
+        "Connection": "연결", 
+        "Harmony": "조화", 
+        "Coordination": "조율" 
+    };
+
+    const p = clusterPersonas[t1];
+    const matrixKey = `${t1}+${t2} (${axisKo[t1]}+${axisKo[t2]})`; 
+    const pureKey = `${t1}+${t2}`;
+
+    // 지수 설명 문구 정의
+    const indexIntro = "강점 에너지가 목표 지점에 집중되는 정밀함의 수준";
+
+    // 기본 정보 출력
+    document.getElementById('res-date').innerText = "진단 일시: " + new Date().toLocaleString() + " (현재 상태 기준)";
+    document.getElementById('res-persona-title').innerText = p.title;
+    document.getElementById('res-persona-sub').innerText = signatureMatrix[pureKey] || p.sub;
+
+ // --- 이 코드로 교체하세요 ---
+document.getElementById('res-tag').innerText = window.finalResults.energy;
+
+// ✅ 순서 변경: 판단 로직(isIntentAligned)을 위로 올렸습니다.
+const isIntentAligned = Object.keys(axisMapping).some(tag => window.finalResults.energy.includes(tag) && axisMapping[tag] === t1);
+
+const energyGoal = window.finalResults.energy.replace(/#/g, ''); 
+const coreStrengthName = axisKo[t1]; 
+
+// ✅ 이제 위에서 정의된 isIntentAligned를 정상적으로 사용합니다.
+const alignmentText = isIntentAligned 
+    ? `현재 갈망하는 <strong>${energyGoal}</strong> 에너지가 핵심 강점인 <strong>${coreStrengthName}</strong> 엔진과 완벽히 정렬되어 폭발적인 시너지를 내고 있습니다.`
+    : `당신의 강력한 <strong>${coreStrengthName}</strong> 엔진을 활용해 보세요. 그것이 원하시는 <strong>${energyGoal}</strong> 상태에 도달하는 가장 지혜로운 전략이 될 것입니다.`;
+
+document.getElementById('res-tag-desc').innerHTML = alignmentText;
+document.getElementById('res-sync-value').innerText = sync + "%";
+document.getElementById('res-neuro').innerHTML = p.neuro;
+let alignmentMessage = "";
+
+    if (isIntentAligned) {
+        alignmentMessage = `
+            <div style="background: rgba(180, 138, 50, 0.08); padding: 15px; border-radius: 12px; border: 1px solid rgba(180, 138, 50, 0.3); margin-bottom: 15px; text-align: left;">
+                <strong style="color:var(--accent-gold); font-size:1rem;">🎯 일치율 보너스 반영</strong><br>
+                <span style="font-size:0.95rem; color:#042F2E; line-height:1.6;">
+                    추구하는 에너지와 데이터로 확인된 강점이 일치하여 <strong>엔진 정렬 지수 상승에 반영</strong>되었습니다.
+                </span>
+            </div>
+        `; // ✅ 문장을 닫아줌
+    }
+
+    // ✅ 핵심: 이 줄이 있어야 화면에 보너스 박스와 지수 설명이 나타납니다!
+    document.getElementById('res-alignment-desc').innerHTML = `
+        ${alignmentMessage}
+        <p style="font-size:0.85rem; line-height:1.6; color:#6B7280; opacity:0.9;">${indexIntro}</p>
+    `;
+
+    // [핵심 수정: 영문(한글) 형태로 시너지 분석 제목 표기]
+    document.getElementById('res-synergy-area').innerHTML = `
+        <div class="synergy-card">
+            <p class="synergy-title">🧬 엔진 시너지 분석: ${t1} × ${t2} (${axisKo[t1]} × ${axisKo[t2]})</p>
+            <div class="synergy-text">"${synergyDetails[matrixKey] || "당신의 핵심 강점 엔진들이 조화롭게 작용하여 독특한 활력을 만들어내고 있습니다."}"</div>
+        </div>`;
+
+            let batteryText = "";
+            let coachQuestion = "";
+            let statusText = "";
+            let neuroText = "";
+
+            if(sync >= 90) {
+                statusText = "장애물 없는 트랙 위를 달리는 슈퍼카와 같습니다. '갓생'이 노력해야 하는 숙제가 아니라 자연스러운 일상이 된 상태입니다.";
+                neuroText = "전전두엽의 실행 제어 신호가 잡음 없이 신경계에 전달되고 있습니다. 도파민 회로가 성취의 기쁨에 매우 민감하게 반응하여 '뇌신경학적 선순환'의 정점에 도달했습니다.";
+                coachQuestion = "이 압도적인 몰입 에너지를 다음 단계의 '불가능해 보이는 목표' 어디로 회전시키고 싶나요?";
+            } else if(sync >= 75) {
+                statusText = "목적지를 향해 속도감 있게 나아가고 있습니다. 성취감과 자존감의 밸런스가 조화로운 가장 이상적인 갓생러의 모습입니다.";
+                neuroText = "전전두엽의 하향 조절 기능이 원활하여 불필요한 감정적 동요에 에너지를 낭비하지 않습니다. 최적의 신경 가소성 구간에 진입해 있습니다.";
+                coachQuestion = "지금의 선순환 리듬을 더욱 증폭시키기 위해, 나의 강점이 주변 사람들의 엔진에 기분 좋은 불꽃을 지필 수 있는 방법은 무엇일까요?";
+            } else if(sync >= 60) {
+                statusText = "연비는 좋지만 추월 차선으로 나가기에는 변속이 한 박자 늦습니다. '방어적 가동 패턴'을 보이고 있을 가능성이 높습니다.";
+                neuroText = "전전두엽 신호는 명확하지만 주변부의 '완벽주의'나 '불안'이라는 노이즈가 실행 회로의 흐름을 막고 있습니다. 더 잘하려는 의욕이 오히려 행동을 붙잡는 뇌신경 병목 현상 상태입니다.";
+                coachQuestion = "지금 당신의 에너지를 가장 많이 갉아먹는 '사소한 고민'은 무엇인가요? 만약 실패가 100% 보장되지 않는다면, 당신의 엔진을 어디로 더 강하게 회전시키고 싶나요?";
+            } else if(sync >= 40) {
+                statusText = "시동은 걸려 있지만 기어가 중립(N)에 놓여 에너지가 헛돌고 있습니다. '열심히는 사는데 제자리인 느낌'이 스며드는 구간입니다.";
+                neuroText = "디폴트 모드 네트워크(DMN)가 과활성화되어 잡생각에 에너지가 새어나가고 있습니다. 기대한 만큼의 성취감이 따르지 않는 '보상 예측 오류'가 누적되어 무력감을 쉽게 느끼는 상태입니다.";
+                coachQuestion = "오늘 하루 당신의 생각과 행동 사이에서 가장 큰 마찰음(스트레스)을 일으키는 지점은 어디인가요? 중립 기어로 전환하기 위해 어떤 용기가 필요한가요?" ;
+            } else {
+                statusText = "엔진 경고등이 켜졌습니다. 일상의 루틴 유지가 버거울 수 있으며 강제로 에너지를 쥐어짜고 있는 번아웃 전조 상태입니다.";
+                neuroText = "편도체가 예민해져 전전두엽의 판단을 차단하는 '편도체 하이재킹' 상태입니다. 세로토닌 호르몬 생성을 촉진하는 시스템 복구를 위해 휴식을 최우선해야 하는 상태입니다.";
+                coachQuestion = "지금 당신의 몸과 마음이 보내는 '정지 신호' 중 가장 애써 무시하고 있는 것은 무엇인가요? 그 경고등을 끄기 위해 지금 당장 멈춰야 할 단 하나는 무엇입니까?";
+            }
+
+            if(sync >= 80) {
+                batteryText = "<strong>지수가 높은 상태 (80% 이상):</strong> 불필요한 백그라운드 앱이 모두 정리된 상태입니다. 내가 화면을 켜서 집중하는 그 일에만 에너지가 100% 전달되어, 적게 일하고도 최고의 성과를 내는 <strong>'최적의 컨디션(Sweet Spot)'</strong>입니다.";
+            } else {
+                batteryText = "<strong>지수가 낮은 상태:</strong> 스마트폰을 별로 안 쓰는 것 같은데 배터리가 금방 닳고 뜨거워지는 상태입니다. 뒤에서 <strong>'남과의 비교', '완벽주의', '미래에 대한 걱정'</strong>이라는 무거운 앱들이 계속 돌아가며 에너지를 갉아먹고 있기 때문이죠.";
+            }
+
+         // 1. 지수 의미 (보조 정보와 보너스 메시지를 합쳐서 표시)
+document.getElementById('res-alignment-desc').innerHTML = `
+    ${alignmentMessage} 
+    <div style="margin-bottom: 8px;"><strong style="color:var(--accent-gold); font-size: 0.85rem;">📊 지수의 의미</strong></div>
+    <p style="font-size: 0.82rem; line-height:1.6; color:#6B7280; margin-bottom:15px; word-break:keep-all;">${indexIntro}</p>
+`;
+
+// 2. 에너지 상태 (핵심 정보: 진한 색상과 굵기 추가)
+document.getElementById('res-alignment-detail').innerHTML = `
+    <div style="border-top: 1px solid #E5E7EB; padding-top: 15px; margin-bottom: 8px;">
+        <strong style="color:var(--accent-gold); font-size: 0.9rem;">🔋 엔진 가동 상태</strong>
+    </div>
+    <p style="font-size: 1.05rem; line-height:1.8; color:#111827; font-weight: 500; word-break:keep-all;">${batteryText}</p>
+`;
+            document.getElementById('res-status-neuro-area').innerHTML = `
+                <div class="analysis-box">
+                    <span class="analysis-label">⚙️ 엔진 현재 상태</span>
+                    <div class="analysis-content">${statusText}</div>
+                </div>
+                <div class="analysis-box">
+                    <span class="analysis-label">🔬 뇌과학적 정밀 진단</span>
+                    <div class="analysis-content">${neuroText}</div>
+                </div>
+            `;
+
+            document.getElementById('coach-question-area').innerHTML = `
+                <div class="coach-question-box">
+                    <span class="coach-question-label">💬 명코치의 질문 (Self-Reflection)</span>
+                    <div class="coach-question-content">"${coachQuestion}"</div>
+                </div>
+            `;
+            document.getElementById('mission-area').innerHTML = `
+    <div class="mission-card">
+        <p style="color:var(--accent-gold); font-weight:800; font-size:1.0rem; margin:0 0 10px 0;">🏃 드라이브 미션 (Drive Mission)</p>
+        <div style="font-size:1.1rem; font-weight:700; line-height:1.5; color:#042F2E;">
+            ${p.reach}<br>
+            <span style="font-size:1.05rem; opacity:0.9;">"${p.mission}"</span>
+        </div>
+    </div>`;
+            document.getElementById('mentoring-area').innerHTML = `<h4 style="margin:0 0 15px 0; color:var(--accent-gold);">🎯 명코치의 원포인트 레슨 (Expert Note)</h4><div style="font-size:1.15rem; line-height:1.8; margin:20px 0;">${p.lesson}</div>`;
+
+            if (vitalChartInstance) { vitalChartInstance.destroy(); }
+            const ctx = document.getElementById('vitalChart').getContext('2d');
+            vitalChartInstance = new Chart(ctx, { type: 'radar', data: { labels: ["비전", "실행", "연결", "조화", "조율"], datasets: [{ data: window.finalResults.scores, borderColor: '#B48A32', backgroundColor: 'rgba(180,138,50,0.2)', borderWidth: 4 }] }, options: { scales: { r: { min: 0, max: 5, ticks: { display: false, stepSize: 1 }, pointLabels: { font: { size: 16, weight: '700' } } } }, plugins: { legend: { display: false } } } });
+        }
+
+     async function shareData() {
+    const btn = document.getElementById('send-btn');
+    btn.innerText = "데이터 공유 중...";
+    btn.disabled = true;
+
+    // 1. 구글 시트로 데이터 전송
+    try {
+        await fetch(WEB_HOOK_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                ...window.finalResults,
+                timestamp: new Date().toLocaleString()
+            })
+        });
+    } catch(e) { console.error("전송 오류:", e); }
+
+    // 2. 결과 저장용 고유 링크 생성 (데이터 암호화)
+    const resultData = btoa(encodeURIComponent(JSON.stringify(window.finalResults)));
+    const shareUrl = window.location.origin + window.location.pathname + "?res=" + resultData;
+
+    // 3. 모바일 공유하기 호출 또는 클립보드 복사
+    if (navigator.share) {
+        navigator.share({
+            title: '✨ [M-VITAL] 당신의 빛나는 강점 엔진 리포트',
+            text: '오늘 당신의 내면에서 발견한 보석 같은 동력들을 기록해 두었습니다. 나만의 강점 엔진으로 더 단단하게 나아갈 당신을 명코치가 응원합니다. 아래 링크에서 상세 리포트를 확인하세요.',
+            url: shareUrl
+        }).then(() => {
+            btn.innerText = "공유 완료";
+        }).catch((err) => {
+            console.log("공유 취소", err);
+            btn.innerText = "데이터 공유하기";
+            btn.disabled = false;
+        });
+    } else {
+        // PC 등 미지원 환경 백업 (클립보드 복사)
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            alert("결과 확인 링크가 복사되었습니다!\n원하는 곳에 붙여넣어 결과를 보관하세요.");
+            btn.innerText = "링크 복사 완료";
+        }).catch(err => {
+            prompt("아래 링크를 복사하여 보관하세요:", shareUrl);
+            btn.innerText = "공유 완료";
+        });
+    }
+}
+
+// 🚀 페이지 로드 시 공유 링크(?res=...)가 있는지 확인하여 결과를 바로 보여주는 로직
+window.addEventListener('load', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const resData = urlParams.get('res');
+
+    if (resData) {
+        try {
+            // 주소창의 데이터를 해석하여 결과 복원
+            const decodedData = JSON.parse(decodeURIComponent(atob(resData)));
+            window.finalResults = decodedData;
+            
+            const axes = ["Vision", "Execution", "Connection", "Harmony", "Coordination"];
+            const scores = decodedData.scores;
+            // 점수순으로 정렬하여 1, 2순위 강점 추출
+            const sortedIndices = scores.map((s, i) => [i, s]).sort((a, b) => b[1] - a[1]);
+            
+            // 즉시 결과지 화면 출력
+            showResult(axes[sortedIndices[0][0]], axes[sortedIndices[1][0]], decodedData.syncIndex);
+            
+            // 이미 저장된 결과이므로 공유 버튼은 숨김
+            const sendBtn = document.getElementById('send-btn');
+            if (sendBtn) {
+                sendBtn.style.display = 'none';
+            }
+        } catch (e) {
+            console.error("링크 데이터 분석 오류:", e);
+        }
+    }
+});
+</script>
+</body>
+</html>
